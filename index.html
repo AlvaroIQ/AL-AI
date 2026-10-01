@@ -371,6 +371,19 @@
             const prompt = inputField.value.trim();
             if (!prompt) return;
 
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (!savedKey) {
+                window.openApiKeyModal();
+                return;
+            }
+
+            // Re-initialize client to ensure fresh instance per request
+            try {
+                ai = new GoogleGenAI({ apiKey: savedKey });
+            } catch (err) {
+                console.error("Failed to re-init AI:", err);
+            }
+
             if (!ai) {
                 window.openApiKeyModal();
                 return;
@@ -382,27 +395,28 @@
             const loadingId = appendLoadingMessage();
 
             try {
-                const chat = ai.chats.create({
+                // Using standard generateContent model call for maximum reliability
+                const response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
+                    contents: prompt,
                     config: {
                         systemInstruction: "Kamu adalah AL.AI, asisten AI super canggih yang ramah, akurat, dan dapat menjawab berbagai macam pertanyaan (akademik, sains, matematika, coding, umum, dll) dalam Bahasa Indonesia. Jawablah dengan format rapi dan jelas."
-                    },
-                    history: chatHistory
+                    }
                 });
 
-                const result = await chat.sendMessage({ message: prompt });
                 removeMessage(loadingId);
 
-                const botReply = result.text || "Maaf, terjadi kesalahan saat memproses jawaban.";
+                const botReply = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, terjadi kesalahan saat memproses jawaban.";
                 appendMessage(botReply, 'bot');
 
-                chatHistory.push({ role: 'user', parts: [{ text: prompt }] });
-                chatHistory.push({ role: 'model', parts: [{ text: botReply }] });
-
             } catch (error) {
-                console.error("Gemini API Error:", error);
+                console.error("Gemini API Error Detail:", error);
                 removeMessage(loadingId);
-                appendMessage("Terjadi kendala koneksi atau API Key tidak valid. Silakan cek kembali API Key Anda melalui tombol kunci di bawah sidebar.", 'bot');
+                let errorMsg = "Terjadi kendala koneksi atau API Key tidak valid. Silakan cek kembali API Key Anda.";
+                if (error.message) {
+                    errorMsg += ` (${error.message})`;
+                }
+                appendMessage(errorMsg, 'bot');
             }
         };
 
