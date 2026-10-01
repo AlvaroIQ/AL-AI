@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL.AI - Asisten Super Canggih</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .neon-glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.6), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .neon-border-cyan {
+            border-color: #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.7);
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row relative select-none">
+
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <aside class="w-full md:w-64 glass-panel flex md:flex-col justify-between items-center md:items-stretch p-4 z-20 border-b md:border-b-0 md:border-r border-slate-800">
+        <div class="flex items-center space-x-3 mb-0 md:mb-8 px-2 py-1">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-fuchsia-500 flex items-center justify-center neon-glow-cyan">
+                <i class="fa-solid fa-brain text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wider text-white neon-text-cyan">AL.AI</h1>
+                <p class="text-[10px] text-cyan-400 font-medium tracking-widest uppercase">Super AI System</p>
+            </div>
+        </div>
+
+        <nav class="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2 flex-grow justify-center md:justify-start px-2">
+            <button onclick="window.switchTab('home')" id="nav-home" class="nav-btn flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 neon-glow-cyan">
+                <i class="fa-solid fa-house text-lg w-6 text-center"></i>
+                <span class="font-medium hidden md:inline">Home</span>
+            </button>
+            <button onclick="window.switchTab('chat')" id="nav-chat" class="nav-btn flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-comments text-lg w-6 text-center"></i>
+                <span class="font-medium hidden md:inline">Percakapan</span>
+            </button>
+        </nav>
+
+        <div class="hidden md:block pt-4 border-t border-slate-800/80">
+            <div class="flex items-center space-x-3 px-2 py-2 rounded-xl bg-slate-900/40 border border-slate-800">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                </span>
+                <div class="text-xs flex-1">
+                    <p class="text-slate-300 font-semibold">Status AI</p>
+                    <p id="apiKeyStatus" class="text-yellow-400 font-mono text-[10px]">API Key Required</p>
+                </div>
+                <button onclick="window.openApiKeyModal()" class="text-cyan-400 hover:text-cyan-300 text-xs px-2 py-1 rounded bg-cyan-500/10 border border-cyan-500/30">
+                    <i class="fa-solid fa-key"></i>
+                </button>
+            </div>
+            <div class="mt-3 text-center">
+                <p class="text-[10px] text-slate-500 font-medium tracking-wide">Created by : <span class="text-cyan-400 font-semibold">Webify Studio</span></p>
+            </div>
+        </div>
+    </aside>
+
+    <div id="apiKeyModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel p-6 rounded-2xl max-w-md w-full border border-cyan-500/30 neon-glow-cyan">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-cyan-400 text-lg"></i>
+                    <h3 class="font-bold text-white text-lg">Masukkan Gemini API Key</h3>
+                </div>
+                <button onclick="window.closeApiKeyModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-slate-300 text-xs mb-4">
+                Untuk menggunakan AL.AI, silakan masukkan Google Gemini API Key Anda. Key Anda disimpan secara lokal di browser Anda.
+            </p>
+            <div class="space-y-3">
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-900/80 border border-slate-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none">
+                <button onclick="window.saveApiKey()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-all">
+                    Simpan & Hubungkan
+                </button>
+            </div>
+            <div class="mt-4 text-center">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-cyan-400 hover:underline">
+                    Dapatkan API Key gratis di Google AI Studio <i class="fa-solid fa-external-link-alt text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+
+        <!-- TAB 1: HOME (AI 2D Interaktif) -->
+        <section id="tab-home" class="tab-content flex flex-col items-center justify-center h-full p-6 text-center animate-pulse-slow">
+            <div class="max-w-xl w-full flex flex-col items-center">
+                <div class="relative mb-6 group cursor-pointer" onclick="window.switchTab('chat')">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+                    <canvas id="aiCanvas" width="220" height="220" class="relative rounded-full glass-panel border-2 border-cyan-500/50 shadow-2xl"></canvas>
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-3">
+                    Halo, Saya <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 neon-text-cyan">AL.AI</span>
+                </h2>
+                <p class="text-slate-300 text-sm md:text-base max-w-md mb-8 leading-relaxed">
+                    Asisten AI super canggih berteknologi neon dinamis. Siap menjawab pertanyaan akademik, coding, hingga kreativitasmu.
+                </p>
+
+                <button onclick="window.switchTab('chat')" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 flex items-center space-x-2 border border-cyan-400/30">
+                    <span>Mulai Percakapan</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 2: PERCAKAPAN (Chat & Voice-to-Text) -->
+        <section id="tab-chat" class="tab-content hidden flex flex-col h-full overflow-hidden">
+            <header class="glass-panel px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm md:text-base">Ruang Percakapan AL.AI</h3>
+                        <p class="text-xs text-cyan-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block animate-pulse"></span>
+                            Siap menjawab berbagai pertanyaan
+                        </p>
+                    </div>
+                </div>
+                <button onclick="window.clearChat()" class="text-slate-400 hover:text-red-400 text-xs px-3 py-1.5 rounded-lg border border-slate-700/60 hover:border-red-500/40 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Hapus Chat</span>
+                </button>
+            </header>
+
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-fuchsia-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                        <i class="fa-solid fa-brain text-xs"></i>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl rounded-tl-none max-w-[85%] md:max-w-xl text-sm leading-relaxed border-cyan-500/20">
+                        <p class="text-slate-200">Halo! Aku <strong>AL.AI</strong>. Ada pertanyaan, soal, atau tugas apa yang ingin kita bahas hari ini? Ketik atau gunakan suara untuk bertanya padaku!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 glass-panel border-t border-slate-800">
+                <form id="chatForm" onsubmit="window.handleSendMessage(event)" class="flex items-center gap-2 max-w-4xl mx-auto relative">
+                    <button type="button" id="voiceBtn" onclick="window.toggleVoiceInput()" title="Voice to Text" class="w-12 h-12 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/50 flex items-center justify-center transition-all shrink-0">
+                        <i id="micIcon" class="fa-solid fa-microphone text-lg"></i>
+                    </button>
+
+                    <input type="text" id="userInput" placeholder="Ketik pertanyaan atau soal di sini..." autocomplete="off" class="flex-1 bg-slate-900/80 border border-slate-700 focus:border-cyan-500 rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all">
+
+                    <button type="submit" id="sendBtn" class="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium flex items-center justify-center shadow-lg shadow-cyan-500/20 transition-all shrink-0 border border-cyan-400/30">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
+        let ai = null;
+
+        function initAI() {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            const statusEl = document.getElementById('apiKeyStatus');
+            if (savedKey) {
+                try {
+                    ai = new GoogleGenAI({ apiKey: savedKey });
+                    if(statusEl) {
+                        statusEl.textContent = "Online & Ready";
+                        statusEl.className = "text-cyan-400 font-mono text-[10px]";
+                    }
+                } catch (e) {
+                    console.error("Inisialisasi AI gagal:", e);
+                }
+            } else {
+                if(statusEl) {
+                    statusEl.textContent = "API Key Required";
+                    statusEl.className = "text-yellow-400 font-mono text-[10px]";
+                }
+                setTimeout(() => {
+                    window.openApiKeyModal();
+                }, 500);
+            }
+        }
+
+        window.openApiKeyModal = function() {
+            const modal = document.getElementById('apiKeyModal');
+            if(modal) {
+                modal.classList.remove('hidden');
+                const input = document.getElementById('apiKeyInput');
+                const savedKey = localStorage.getItem('gemini_api_key');
+                if(input && savedKey) input.value = savedKey;
+            }
+        };
+
+        window.closeApiKeyModal = function() {
+            const modal = document.getElementById('apiKeyModal');
+            if(modal) modal.classList.add('hidden');
+        };
+
+        window.saveApiKey = function() {
+            const input = document.getElementById('apiKeyInput');
+            const key = input ? input.value.trim() : '';
+            if (!key) {
+                alert("API Key tidak boleh kosong!");
+                return;
+            }
+            localStorage.setItem('gemini_api_key', key);
+            try {
+                ai = new GoogleGenAI({ apiKey: key });
+                window.closeApiKeyModal();
+                const statusEl = document.getElementById('apiKeyStatus');
+                if(statusEl) {
+                    statusEl.textContent = "Online & Ready";
+                    statusEl.className = "text-cyan-400 font-mono text-[10px]";
+                }
+                appendMessage("API Key berhasil disimpan! AL.AI siap menjawab pertanyaanmu.", 'bot');
+            } catch (e) {
+                alert("API Key tidak valid atau terjadi kesalahan.");
+            }
+        };
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-500/40', 'neon-glow-cyan');
+                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/50');
+            });
+
+            if (tabId === 'home') {
+                document.getElementById('tab-home').classList.remove('hidden');
+                const btn = document.getElementById('nav-home');
+                if(btn) {
+                    btn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-500/40', 'neon-glow-cyan');
+                    btn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/50');
+                }
+            } else if (tabId === 'chat') {
+                document.getElementById('tab-chat').classList.remove('hidden');
+                const btn = document.getElementById('nav-chat');
+                if(btn) {
+                    btn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-500/40', 'neon-glow-cyan');
+                    btn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/50');
+                }
+                scrollToBottom();
+            }
+        };
+
+        const canvas = document.getElementById('aiCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let hue = 180;
+
+            function drawAI() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                let centerX = canvas.width / 2;
+                let centerY = canvas.height / 2;
+                let time = Date.now() * 0.003;
+
+                hue = (hue + 0.5) % 360;
+                let primaryColor = `hsl(${hue}, 100%, 55%)`;
+                let secondaryColor = `hsl(${(hue + 60) % 360}, 100%, 60%)`;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 80 + Math.sin(time) * 5, 0, Math.PI * 2);
+                ctx.strokeStyle = primaryColor;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 6]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 60 + Math.cos(time * 1.5) * 4, 0, Math.PI * 2);
+                ctx.strokeStyle = secondaryColor;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                let coreRadius = 30 + Math.sin(time * 2) * 4;
+                let gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, coreRadius);
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(0.4, primaryColor);
+                gradient.addColorStop(1, 'transparent');
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                for (let i = 0; i < 5; i++) {
+                    let angle = time + (i * Math.PI * 2 / 5);
+                    let px = centerX + Math.cos(angle) * 70;
+                    let py = centerY + Math.sin(angle) * 70;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = primaryColor;
+                    ctx.shadowBlur = 10;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                requestAnimationFrame(drawAI);
+            }
+            drawAI();
+        }
+
+        let chatHistory = [];
+
+        window.handleSendMessage = async function(event) {
+            event.preventDefault();
+            const inputField = document.getElementById('userInput');
+            const prompt = inputField.value.trim();
+            if (!prompt) return;
+
+            if (!ai) {
+                window.openApiKeyModal();
+                return;
+            }
+
+            inputField.value = '';
+            appendMessage(prompt, 'user');
+            
+            const loadingId = appendLoadingMessage();
+
+            try {
+                const chat = ai.chats.create({
+                    model: 'gemini-2.5-flash',
+                    config: {
+                        systemInstruction: "Kamu adalah AL.AI, asisten AI super canggih yang ramah, akurat, dan dapat menjawab berbagai macam pertanyaan (akademik, sains, matematika, coding, umum, dll) dalam Bahasa Indonesia. Jawablah dengan format rapi dan jelas."
+                    },
+                    history: chatHistory
+                });
+
+                const result = await chat.sendMessage({ message: prompt });
+                removeMessage(loadingId);
+
+                const botReply = result.text || "Maaf, terjadi kesalahan saat memproses jawaban.";
+                appendMessage(botReply, 'bot');
+
+                chatHistory.push({ role: 'user', parts: [{ text: prompt }] });
+                chatHistory.push({ role: 'model', parts: [{ text: botReply }] });
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                removeMessage(loadingId);
+                appendMessage("Terjadi kendala koneksi atau API Key tidak valid. Silakan cek kembali API Key Anda melalui tombol kunci di bawah sidebar.", 'bot');
+            }
+        };
+
+        function appendMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start space-x-3 ${sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
+
+            const iconDiv = document.createElement('div');
+            iconDiv.className = `w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
+                sender === 'user' 
+                    ? 'bg-gradient-to-tr from-blue-600 to-cyan-500' 
+                    : 'bg-gradient-to-tr from-cyan-500 to-fuchsia-500'
+            }`;
+            iconDiv.innerHTML = sender === 'user' ? '<i class="fa-solid fa-user text-xs"></i>' : '<i class="fa-solid fa-brain text-xs"></i>';
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `glass-panel p-4 rounded-2xl max-w-[85%] md:max-w-xl text-sm leading-relaxed ${
+                sender === 'user' 
+                    ? 'rounded-tr-none bg-cyan-950/40 border-cyan-500/30 text-white' 
+                    : 'rounded-tl-none border-cyan-500/20 text-slate-200'
+            }`;
+            
+            bubbleDiv.innerHTML = `<p class="whitespace-pre-wrap">${escapeHtml(text)}</p>`;
+
+            messageDiv.appendChild(iconDiv);
+            messageDiv.appendChild(bubbleDiv);
+            container.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function appendLoadingMessage() {
+            const container = document.getElementById('chatMessages');
+            const id = 'loading-' + Date.now();
+            const messageDiv = document.createElement('div');
+            messageDiv.id = id;
+            messageDiv.className = 'flex items-start space-x-3';
+
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-fuchsia-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <i class="fa-solid fa-brain text-xs"></i>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl rounded-tl-none border-cyan-500/20 text-slate-300 text-sm flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-bounce"></span>
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-bounce [animation-delay:0.4s]"></span>
+                    <span class="ml-2 text-xs text-cyan-400 font-mono">AL.AI sedang berpikir...</span>
+                </div>
+            `;
+            container.appendChild(messageDiv);
+            scrollToBottom();
+            return id;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        window.clearChat = function() {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-fuchsia-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                        <i class="fa-solid fa-brain text-xs"></i>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl rounded-tl-none max-w-[85%] md:max-w-xl text-sm leading-relaxed border-cyan-500/20">
+                        <p class="text-slate-200">Riwayat dibersihkan. Silakan ajukan pertanyaan baru!</p>
+                    </div>
+                </div>
+            `;
+            chatHistory = [];
+        };
+
+        function scrollToBottom() {
+            const container = document.getElementById('chatMessages');
+            if(container) container.scrollTop = container.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        let recognition = null;
+        let isRecording = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                const speechText = event.results[0][0].transcript;
+                const inputEl = document.getElementById('userInput');
+                if(inputEl) inputEl.value = speechText;
+                stopVoiceUI();
+            };
+
+            recognition.onerror = () => {
+                stopVoiceUI();
+            };
+
+            recognition.onend = () => {
+                stopVoiceUI();
+            };
+        }
+
+        window.toggleVoiceInput = function() {
+            if (!recognition) {
+                const container = document.getElementById('chatMessages');
+                if(container) {
+                    const notice = document.createElement('div');
+                    notice.className = 'p-3 rounded-xl bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs my-2';
+                    notice.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Fitur Voice-to-Text tidak didukung di browser ini. Gunakan Google Chrome.';
+                    container.appendChild(notice);
+                    scrollToBottom();
+                }
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+                stopVoiceUI();
+            } else {
+                try {
+                    recognition.start();
+                    startVoiceUI();
+                } catch (e) {
+                    stopVoiceUI();
+                }
+            }
+        };
+
+        function startVoiceUI() {
+            isRecording = true;
+            const btn = document.getElementById('voiceBtn');
+            const icon = document.getElementById('micIcon');
+            if(btn) {
+                btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400', 'animate-pulse');
+            }
+            if(icon) {
+                icon.classList.remove('fa-microphone');
+                icon.classList.add('fa-microphone-slash');
+            }
+        }
+
+        function stopVoiceUI() {
+            isRecording = false;
+            const btn = document.getElementById('voiceBtn');
+            const icon = document.getElementById('micIcon');
+            if(btn) {
+                btn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400', 'animate-pulse');
+            }
+            if(icon) {
+                icon.classList.remove('fa-microphone-slash');
+                icon.classList.add('fa-microphone');
+            }
+        }
+
+        initAI();
+    </script>
+</body>
+</html>
